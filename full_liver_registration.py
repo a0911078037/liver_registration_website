@@ -1,13 +1,9 @@
-from genericpath import isdir
 from PIL import Image
 import cv2
-import glob
 import os
 import numpy as np
 import nibabel as nib
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import models_small as M
-import SimpleITK as sitk
 from predict_generater import DataGenerator
 from scipy.ndimage.morphology import binary_fill_holes,binary_erosion
 from scipy.ndimage import zoom
@@ -18,26 +14,45 @@ import time
 import open3d as o3
 from probreg import cpd
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
+before_niigz_path='dicom/s11.nii.gz'
+after_niigz_path='dicom/s12.nii.gz'
+path_list=[before_niigz_path,after_niigz_path]
+
+before_niigz=nib.load(before_niigz_path)
+after_niigz=nib.load(after_niigz_path)
+niigz_list=[before_niigz,after_niigz]
+
+slice_thickness_before=nib.load(before_niigz_path).header["pixdim"][3]
+slice_thickness_after=nib.load(after_niigz_path).header["pixdim"][3]
 
 
-def liver_detection(before_niigz_path,after_niigz_path):
+def liver_detection():
 
     start=time.time()
 
-    raw_niigz=[before_niigz_path,after_niigz_path]
 
     CONFIDENCE_THRESHOLD=0.4
     NMS_THRESHOLD=0.5
     net = cv2.dnn.readNet("backup/yolo-obj_best.weights", "yolo-obj.cfg")
     model = cv2.dnn_DetectionModel(net)
-    model.setInputParams(size=(256, 256), scale=1/255, swapRB=True)
+    model.setInputParams(size=(256,256), scale=1/255, swapRB=True)
 
     dicom_list=[]
-    for dicom_p in raw_niigz:
+    for dicom_p in path_list:
 
         print(dicom_p)
         dicom_n=nib.load(dicom_p)
         dicom=dicom_n.get_data()
+
+        # dicom_2=[]
+        # for i in range(dicom.shape[0]):
+        #     if i%3==0:
+        #         continue
+        #     dicom_2.append(dicom[i])
+        # dicom_2=np.array(dicom_2)
+
         min=9999
         max=-1
         accumulation_out=-9999
@@ -45,9 +60,12 @@ def liver_detection(before_niigz_path,after_niigz_path):
         for i,img in enumerate(dicom):
 
             img=Image.fromarray((img*255).astype(np.uint8)).convert('RGB')
+            
             img=np.array(img)
+            
+
             classes, scores, boxes = model.detect(img, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
-            print(i,classes,scores,boxes)
+            #print(i,classes,scores,boxes)
             if not len(classes)==0:#有東西
                 if i<min:min=i
                 if i>max:max=i
@@ -61,6 +79,7 @@ def liver_detection(before_niigz_path,after_niigz_path):
         if min>5:min=min-5
         if max<dicom.shape[0]-6:max=max+5
         dicom_list.append(dicom[min:max])
+
 
     prosses_time=time.time()-start
     print("detection_time=",prosses_time)
@@ -78,7 +97,6 @@ def get_FOV(vol_ims):#around_lung, lung
     for idx in range(shp[0]):
         FOV[idx, :, :] = binary_fill_holes(vol_mask[idx, :, :]).astype(vol_mask.dtype)
         FOV[idx, :, :] = binary_erosion(FOV[idx, :, :], structure=np.ones((30,30))).astype(FOV.dtype)
-        #FOV[idx, :, :] = binary_dilation(FOV[idx, :, :], structure=np.ones((25,25))).astype(FOV.dtype)
     return FOV
 
 def prepare_test(slice):
@@ -95,23 +113,12 @@ def prepare_test(slice):
     return lung,soft,bone
 
 
-def load_niigz(slice):
-    
-    slice_resize=[]
-    for s in slice:
-        test_Img = Image.fromarray((s).astype(np.uint8))
-        test_small_Img = test_Img.resize((256,256), Image.ANTIALIAS)
-        test_data = np.asarray(test_small_Img)
-        slice_resize.append(test_data)
-    
-    slice_resize=np.asarray(slice_resize)
-    return slice_resize
 
 def segmentation(dicom_for_seg):
     start=time.time()
     params = {'dim': (256,256),
-          'batch_size': 12,
-          'n_classes': 1, # 這個好像要處理一下，有看到說可以用1，或4的倍數
+          'batch_size': 32,
+          'n_classes': 1, 
           'n_channels': 3,
           'shuffle':False
           }
@@ -122,15 +129,8 @@ def segmentation(dicom_for_seg):
     model.load_weights(weight) 
 
 
-
-    done=0
     predict_mask=[]
     for dicom in dicom_for_seg:
-        print(done,'/',len(dicom_for_seg)-1)
-        done+=1
-
-        dicom=load_niigz(dicom)#標準化
-        # FOV=get_FOV(dicom)
 
         lung,soft,bone=prepare_test(dicom)
 
@@ -146,9 +146,11 @@ def segmentation(dicom_for_seg):
         FOV=get_FOV(predictions_mask)
 
         Estimated_mask = np.where(FOV - predictions_mask>0, 1, 0)##
-
         Estimated_mask=np.int32(Estimated_mask)
+
+
         predict_mask.append(Estimated_mask)
+    
 
     prosses_time=time.time()-start
     print("segmentation_time=",prosses_time)
@@ -190,11 +192,15 @@ def registration(before_point,after_point):
     scale_txt.write(str(tf_param.scale))
 
     # draw result
+    #######################
     source.paint_uniform_color([1, 0, 0])
     target.paint_uniform_color([0, 1, 0])
     result.paint_uniform_color([0, 0, 1])
-    
-    #o3.visualization.draw_geometries([ source,target,result])#,tranform_mask
+    o3.visualization.draw_geometries([ source,target,result])#,tranform_mask
+    ########################
+    o3.io.write_point_cloud('result/before.pcd',source)
+    o3.io.write_point_cloud('result/after.pcd',target)
+    o3.io.write_point_cloud('result/result.pcd',result)
 
     prosses_time=time.time()-start
     print("registration_time=",prosses_time)
@@ -216,52 +222,92 @@ def mask_to_pointcloud(predict_mask):
     after_canny=np.array(after_canny)
 
 
-    before_point=[]
     interval=50
+    before_point=[]
     pointer=0
     print("making as before_mask.txt")
     for z in range(before_canny.shape[0]):
-        for x in range(before_canny.shape[1]):
-            for y in range(before_canny.shape[2]):
-                if before_canny[z,x,y]>0:
-                    if pointer%interval==0:
-                        before_point.append([z,x,y])
-                    pointer+=1
+        if z%(5//slice_thickness_before)==0:
+            for x in range(before_canny.shape[1]):
+                for y in range(before_canny.shape[2]):
+                    if before_canny[z,x,y]>0:
+                        if pointer%interval==0:
+                            before_point.append([z,x,y])
+                        pointer+=1
     print(pointer/interval)
-    # pcd = o3.geometry.PointCloud()
-    # pcd.points = o3.utility.Vector3dVector(point_list)
-    # o3.visualization.draw_geometries([pcd])    
+ 
 
     after_point=[]
-    interval=50
     pointer=0
     print("making as after_mask.txt")
     for z in range(after_canny.shape[0]):
-        for x in range(after_canny.shape[1]):
-            for y in range(after_canny.shape[2]):
-                if after_canny[z,x,y]>0:
-                    if pointer%interval==0:
-                        after_point.append([z,x,y])
-                    pointer+=1
-    print(pointer/interval)
-    # pcd = o3.geometry.PointCloud()
-    # pcd.points = o3.utility.Vector3dVector(point_list)
-    # o3.visualization.draw_geometries([pcd])
-
+        if z%(5//slice_thickness_after)==0:
+            for x in range(after_canny.shape[1]):
+                for y in range(after_canny.shape[2]):
+                    if after_canny[z,x,y]>0:
+                        if pointer%interval==0:
+                            after_point.append([z,x,y])
+                        pointer+=1
+    print(pointer/interval) 
+     
     prosses_time=time.time()-start
     print("make_point_cloud_time=",prosses_time) 
 
     return before_point,after_point
+
+
+def result2plot(dicom_for_seg,predict_mask):
+
+    for i,d in enumerate(dicom_for_seg):
+        out = nib.Nifti1Image(d,niigz_list[i].affine,niigz_list[i].header)
+        nib.save(out,"result/" + path_list[i].split('/')[-1])
+
+    for i,p in enumerate(predict_mask):
+        out = nib.Nifti1Image(p,niigz_list[i].affine,niigz_list[i].header)
+        nib.save(out,'result/mask_' + path_list[i].split('/')[-1])
+
+    for i in range(len(dicom_for_seg)):
+
+        dicom=dicom_for_seg[i]
+        mask=predict_mask[i]
+
+        if i==0:
+            output_path="result/before/"
+        else:
+            output_path="result/after/"
+        if not os.path.isdir(output_path):
+            os.mkdir(output_path)    
+
+        j=0
+        for d,m in zip(dicom,mask):
+            plt.subplot(121)
+            plt.title("predict_liver")
+            plt.imshow(d)
+            plt.subplot(122)
+            plt.title("liver_mask")
+            plt.imshow(d+m*1000)
+            plt.savefig(output_path+"/"+str(j)+".png")#
+            plt.close()
+            j+=1
+
+
+    
+
 if __name__=='__main__':
 
-    before_niigz_path='dicom/s11.nii.gz'
-    after_niigz_path='dicom/s12.nii.gz'
 
     start=time.time()
-    dicom_for_seg=liver_detection(before_niigz_path,after_niigz_path)
+
+    dicom_for_seg=liver_detection()
+
     predict_mask=segmentation(dicom_for_seg)
+
     before_point,after_point=mask_to_pointcloud(predict_mask)
+
     registration(before_point,after_point)
+
+    result2plot(dicom_for_seg,predict_mask)
+
     prosses_time=time.time()-start
     print("time=",prosses_time)
     

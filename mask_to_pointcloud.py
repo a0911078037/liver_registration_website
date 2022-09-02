@@ -39,6 +39,7 @@ for z in range(before_canny.shape[0]):
             for y in range(before_canny.shape[2]):
                 if before_canny[z,x,y]>0:
                     if pointer%interval==0:
+                        before_mask.write(str(z)+' '+str(x)+' '+str(y)+'\n')
                         before_point.append([z,x,y])
                     pointer+=1
 print(pointer/interval)
@@ -56,6 +57,7 @@ for z in range(after_canny.shape[0]):
             for y in range(after_canny.shape[2]):
                 if after_canny[z,x,y]>0:
                     if pointer%interval==0:
+                        after_mask.write(str(z)+' '+str(x)+' '+str(y)+'\n')
                         after_point.append([z,x,y])
                     pointer+=1
 print(pointer/interval) 

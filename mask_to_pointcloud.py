@@ -5,63 +5,61 @@ import nibabel as nib
 import cv2
 import matplotlib.pyplot as plt
 from scipy.ndimage import rotate
-input_path='D:\\Rai_Thran\\liver_seg_full\\predict_nii.gz\\'
+input_path='predict_mask/'
 mask_path=glob.glob(input_path+'*')
-test=nib.load(mask_path[2]).get_data()
-test2=nib.load(mask_path[4]).get_data()
+test=nib.load(mask_path[0]).get_data()
+test2=nib.load(mask_path[1]).get_data()
 # test2=test
-
+slice_thickness_before=nib.load(mask_path[0]).header["pixdim"][3]
+slice_thickness_after=nib.load(mask_path[1]).header["pixdim"][3]
 
 before_mask=open('before_mask.txt','w')
 after_mask=open('after_mask.txt','w')
 
-test_canny=[]
+before_canny=[]
 for i in test:
     canny=cv2.Canny(np.uint8(i),0.5,2)
-    test_canny.append(canny)
-test_canny=np.array(test_canny)
+    before_canny.append(canny)
+before_canny=np.array(before_canny)
 
-test2_canny=[]
+after_canny=[]
 for i in test2:
     canny=cv2.Canny(np.uint8(i),0.5,2)
-    test2_canny.append(canny)
-test2_canny=np.array(test2_canny)
-test2_canny=rotate(test2_canny,60,(1,2))
+    after_canny.append(canny)
+after_canny=np.array(after_canny)
 
-point_list=[]
+
 interval=50
+before_point=[]
 pointer=0
 print("making as before_mask.txt")
-for z in range(test_canny.shape[0]):
-    for x in range(test_canny.shape[1]):
-        for y in range(test_canny.shape[2]):
-            if test_canny[z,x,y]>0:
-                if pointer%interval==0:
-                    before_mask.write(str(z)+' '+str(x)+' '+str(y)+'\n')
-                    point_list.append([z,x,y])
-                pointer+=1
+for z in range(before_canny.shape[0]):
+    if z%(5//slice_thickness_before)==0:
+        for x in range(before_canny.shape[1]):
+            for y in range(before_canny.shape[2]):
+                if before_canny[z,x,y]>0:
+                    if pointer%interval==0:
+                        before_point.append([z,x,y])
+                    pointer+=1
 print(pointer/interval)
 print('saving as ply / show')
 pcd = o3d.geometry.PointCloud()
-pcd.points = o3d.utility.Vector3dVector(point_list)
-# o3d.io.write_point_cloud("before_mask.pcd", pcd)
-o3d.visualization.draw_geometries([pcd])    
+pcd.points = o3d.utility.Vector3dVector(before_point)
+o3d.visualization.draw_geometries([pcd])
 
-point_list=[]
-interval=200
+after_point=[]
 pointer=0
 print("making as after_mask.txt")
-for z in range(test2_canny.shape[0]):
-    for x in range(test2_canny.shape[1]):
-        for y in range(test2_canny.shape[2]):
-            if test2_canny[z,x,y]>0:
-                if pointer%interval==0:
-                    after_mask.write(str(z)+' '+str(x)+' '+str(y)+'\n')
-                    point_list.append([z,x,y])
-                pointer+=1
-print(pointer/interval)
+for z in range(after_canny.shape[0]):
+    if z%(5//slice_thickness_after)==0:
+        for x in range(after_canny.shape[1]):
+            for y in range(after_canny.shape[2]):
+                if after_canny[z,x,y]>0:
+                    if pointer%interval==0:
+                        after_point.append([z,x,y])
+                    pointer+=1
+print(pointer/interval) 
 print('saving as ply / show')
 pcd = o3d.geometry.PointCloud()
-pcd.points = o3d.utility.Vector3dVector(point_list)
-# o3d.io.write_point_cloud("after_mask.pcd", pcd)
+pcd.points = o3d.utility.Vector3dVector(after_point)
 o3d.visualization.draw_geometries([pcd])

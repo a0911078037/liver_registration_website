@@ -73,7 +73,7 @@ params = {'dim': (256,256),
           }
 
 start=time.time()
-dicom_folder = glob.glob('dicom_for_liver_seg/*.nii.gz')
+dicom_folder = glob.glob('dicom_detection/*.nii.gz')
 dicom_folder=[i.replace('\\','/') for i in dicom_folder]
 dicom_folder.sort(key=rf.natural_keys)
 output_path="predict_mask/"
@@ -119,20 +119,5 @@ for dicom_path in dicom_folder:
     nib.save(out,output_path + 'mask_' + dicom_path.split('/')[-1])
 prosses=time.time()-start
 print("time:",prosses)
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
 
 

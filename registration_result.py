@@ -8,7 +8,6 @@ while(1):
     input_index=input("nodule index = ").split(",")  
     if input_index[0]=='c':
         break
-    output_index=(np.dot([int(input_index[0]),int(input_index[1]),int(input_index[2])],tranform_matrix_rot)+tranform_matrix_t)*scale
+    output_index=(np.dot([int(input_index[0]),int(input_index[1]),int(input_index[2])],tranform_matrix_rot.T)+tranform_matrix_t)*scale
     output_index=[ round(i) for i in output_index]
     print(output_index)
-

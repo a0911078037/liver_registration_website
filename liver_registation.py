@@ -62,10 +62,9 @@ tranform_mask=tranform_mask.rotate(tranform_matrix)#,center=after_mask.get_cente
 o3.visualization.draw_geometries([ source,target,result])#,tranform_mask
 
 #給befoe_mask中的點來映射到after_mask上
-print("a",before_txt)#before_txt
-a=before_txt#before_txt[219,227,79]
-a=(a)*scale#+target.get_center()-source.get_center()   
-b=np.dot(a,tranform_matrix.T)+tranform_matrix2
-
-b=[[round(i[0]),round(i[1]), round(i[2])] for i in b]
-print("b",b)
+print("before",before_txt)
+before=before_txt
+after=(np.dot(before,tranform_matrix.T)+tranform_matrix2)*scale
+after=[[round(i[0]),round(i[1]), round(i[2])] for i in after]
+after=np.array(after)
+print("after",after)

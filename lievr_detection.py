@@ -8,7 +8,7 @@ raw_niigz_path='dicom/'
 raw_niigz=glob.glob(raw_niigz_path+'*')
 raw_niigz=[i.replace('\\','/') for i in raw_niigz]
 
-dicom_out_path='dicom_for_liver_seg/'
+dicom_out_path='dicom_detection/'
 if not os.path.isdir(dicom_out_path):
         os.mkdir(dicom_out_path)
 

@@ -5,13 +5,13 @@ import nibabel as nib
 import cv2
 import matplotlib.pyplot as plt
 from scipy.ndimage import rotate
-input_path='predict_mask/'
-mask_path=glob.glob(input_path+'*')
-test=nib.load(mask_path[0]).get_data()
-test2=nib.load(mask_path[1]).get_data()
+before_path='dicom/s11.nii.gz'
+after_path='dicom/s12.nii.gz'
+test=nib.load(before_path).get_data()
+test2=nib.load(after_path).get_data()
 # test2=test
-slice_thickness_before=nib.load(mask_path[0]).header["pixdim"][3]
-slice_thickness_after=nib.load(mask_path[1]).header["pixdim"][3]
+slice_thickness_before=nib.load(before_path).header["pixdim"][3]
+slice_thickness_after=nib.load(after_path).header["pixdim"][3]
 
 before_mask=open('before_mask.txt','w')
 after_mask=open('after_mask.txt','w')

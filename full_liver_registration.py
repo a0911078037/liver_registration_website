@@ -46,13 +46,6 @@ def liver_detection():
         dicom_n=nib.load(dicom_p)
         dicom=dicom_n.get_data()
 
-        # dicom_2=[]
-        # for i in range(dicom.shape[0]):
-        #     if i%3==0:
-        #         continue
-        #     dicom_2.append(dicom[i])
-        # dicom_2=np.array(dicom_2)
-
         min=9999
         max=-1
         accumulation_out=-9999
@@ -73,7 +66,13 @@ def liver_detection():
 
             else:
                 accumulation_out+=1
-                if accumulation_out>5: break
+                if accumulation_out>5: 
+                    if max-min<10:
+                        min=9999
+                        max=-1
+                        accumulation_out=0
+                    else:
+                        break
         print("min=",min)
         print("max=",max)
         if min>5:min=min-5

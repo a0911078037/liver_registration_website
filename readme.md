@@ -25,6 +25,23 @@ def result2plot:預測出的肝臟和mask存成nii.gz並以圖表的方式呈現
 
     python full_liver_registration.py
 
+以下是input資料改成dcm版本
+
+input:
+
+前後ct影像的dcm檔
+
+output:
+
+registration得出的轉移矩陣、為移量、縮放量，
+
+def result2plot:預測出的肝臟和mask存成nii.gz並以圖表的方式呈現，也將registration的結果成pcd檔(會消耗時間若只要registration結果可以註解掉)
+
+補充:19,20行改成自己的資料位置
+
+
+    python full_liver_registration_dcm.py
+
 ## 檢視結果
 
 輸入座標example:15,244,123，透過矩陣輸出新座標，可重複輸入直道輸入'c'程式停止執行

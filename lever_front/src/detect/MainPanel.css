@@ -1,0 +1,132 @@
+
+#cssload-loader {
+	width: 375px;
+	height: 75px;
+	line-height: 75px;
+	text-align: center;
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, -50%);
+		-o-transform: translate(-50%, -50%);
+		-ms-transform: translate(-50%, -50%);
+		-webkit-transform: translate(-50%, -50%);
+		-moz-transform: translate(-50%, -50%);
+	font-family: helvetica, arial, sans-serif;
+	text-transform: uppercase;
+	font-weight: 900;
+	font-size:27px;
+	color: rgba(8,8,8,0.62);
+	letter-spacing: 0.2em;
+}
+#cssload-loader::before, #cssload-loader::after {
+	content: "";
+	display: block;
+	width: 23px;
+	height: 23px;
+	background: rgb(56,54,56);
+	position: absolute;
+	animation: cssload-load 2.17s infinite alternate ease-in-out;
+		-o-animation: cssload-load 2.17s infinite alternate ease-in-out;
+		-ms-animation: cssload-load 2.17s infinite alternate ease-in-out;
+		-webkit-animation: cssload-load 2.17s infinite alternate ease-in-out;
+		-moz-animation: cssload-load 2.17s infinite alternate ease-in-out;
+}
+#cssload-loader::before {
+	top: 0;
+}
+#cssload-loader::after {
+	bottom: 0;
+}
+
+
+
+@keyframes cssload-load {
+	0% {
+		left: 0;
+		height: 45px;
+		width: 23px;
+	}
+	50% {
+		height: 12px;
+		width: 60px;
+	}
+	100% {
+		left: 353px;
+		height: 45px;
+		width: 23px;
+	}
+}
+
+@-o-keyframes cssload-load {
+	0% {
+		left: 0;
+		height: 45px;
+		width: 23px;
+	}
+	50% {
+		height: 12px;
+		width: 60px;
+	}
+	100% {
+		left: 353px;
+		height: 45px;
+		width: 23px;
+	}
+}
+
+@-ms-keyframes cssload-load {
+	0% {
+		left: 0;
+		height: 45px;
+		width: 23px;
+	}
+	50% {
+		height: 12px;
+		width: 60px;
+	}
+	100% {
+		left: 353px;
+		height: 45px;
+		width: 23px;
+	}
+}
+
+@-webkit-keyframes cssload-load {
+	0% {
+		left: 0;
+		height: 45px;
+		width: 23px;
+	}
+	50% {
+		height: 12px;
+		width: 60px;
+	}
+	100% {
+		left: 353px;
+		height: 45px;
+		width: 23px;
+	}
+}
+
+@-moz-keyframes cssload-load {
+	0% {
+		left: 0;
+		height: 45px;
+		width: 23px;
+	}
+	50% {
+		height: 12px;
+		width: 60px;
+	}
+	100% {
+		left: 353px;
+		height: 45px;
+		width: 23px;
+	}
+}
+
+#console{
+	border: 1px solid;
+	width: 900px;
+	height: 300px;
+}

@@ -65,7 +65,7 @@ function MainPanel() {
         target: false,
         source: false
     };
-    let perspectiveCamera, controls, scene, renderer, stats;
+    let perspectiveCamera, controls, scene, renderer, stats, color;
 
     function show_3d() {
         setload_btn(true);
@@ -100,7 +100,10 @@ function MainPanel() {
         document.getElementById('gui_area').innerHTML = '';
         perspectiveCamera = new THREE.PerspectiveCamera(60, aspect, 1, 1000);
         perspectiveCamera.position.z = 500;
+        color = new THREE.Color(0xFFFFFF);
         scene = new THREE.Scene();
+
+        scene.background = color;
         let loader = new PCDLoader();
         loader.load(`http://${ip}:8000/position_file?f=target`, function (points) {
 

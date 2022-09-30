@@ -11,8 +11,8 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 800,
-    height: 700,
+    width: 900,
+    height: 800,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -229,7 +229,7 @@ function MainPanel() {
                                 <CircularProgress />
                             </Fade>
                             <Grid container spacing={2}>{image_area.map((image) => {
-                                return (<Grid item xs={6}><img src={image.src} alt={image.i} width='90%' height='90%'></img></Grid>)
+                                return (<Grid item xs={12}><img src={image.src} alt={image.i} width='100%' height='100%'></img></Grid>)
                             })}</Grid>
                                </center>
                         </Box>

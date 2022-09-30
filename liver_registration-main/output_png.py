@@ -34,7 +34,7 @@ def load_niigz(path):
 def save_as_plot(output_path, dicom=None, mask=None, predictions=None):
     if dicom is None and mask is None:
         for n in range(len(predictions)):
-            plt.title('predictions')
+            plt.title(f'predictions: {n}')
             plt.imshow(predictions[n])
             plt.tight_layout()
 
@@ -73,3 +73,5 @@ def save_as_plot(output_path, dicom=None, mask=None, predictions=None):
 
         plt.savefig(output_path + "/" + str(n) + ".png")  #
         plt.close()
+
+    plt.close()

@@ -19,8 +19,8 @@ busy = False
 seg_percent = 0
 
 
-# with open('logger/error.log', 'w'):
-#     pass
+with open('logger/error.log', 'w'):
+    pass
 error_log = logging.getLogger('error_log')
 logger_format = logging.Formatter('[%(asctime)s] :%(message)s')
 fh = logging.FileHandler('logger/error.log')

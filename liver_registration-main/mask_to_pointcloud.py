@@ -4,9 +4,9 @@ import nibabel as nib
 import cv2
 
 
-def mask_to_pointcloud():
-    before_path = 'predict_mask/mask_s11.nii.gz'
-    after_path = 'predict_mask/mask_s12.nii.gz'
+def mask_to_pointcloud(data_name1, data_name2):
+    before_path = f'predict_mask/mask_{data_name1}.nii.gz'
+    after_path = f'predict_mask/mask_{data_name2}.nii.gz'
     test = nib.load(before_path).get_data()
     test2 = nib.load(after_path).get_data()
     # test2=test
@@ -28,7 +28,7 @@ def mask_to_pointcloud():
         after_canny.append(canny)
     after_canny = np.array(after_canny)
 
-    interval = 50
+    interval = 20
     before_point = []
     pointer = 0
     print("making as before_mask.txt")

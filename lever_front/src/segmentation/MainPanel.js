@@ -131,7 +131,7 @@ function MainPanel() {
             .then((res) => res.json())
             .then((data) => {
                 if (data['success'] === false) {
-                    showerror(data['success']);
+                    showerror(data['msg']);
                     clearInterval(logger_hander);
                     setload_btn(false);
                     return;
@@ -158,7 +158,10 @@ function MainPanel() {
                 else {
                     setTimeout(check_server_status, 1000);
                 }
+            }).catch((error)=>{
+                setTimeout(check_server_status, 1000);
             })
+            
     }
 
     useEffect(() => {
@@ -175,6 +178,10 @@ function MainPanel() {
                     showerror('伺服器正在處理請求中，請稍等');
                     check_server_status();
                 }
+            }).catch((error)=>{
+                showerror('無法連線到伺服器，重試中');
+                setload_btn(true);
+                check_server_status();
             })
 
 
@@ -193,10 +200,10 @@ function MainPanel() {
                         <center><img src='image/s12.gif' alt='sample_two' /></center>
                     </Grid>
                     <Grid item xs={6}>
-                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_segment_requset('s11')}>分割第一個Sample</LoadingButton></center>
+                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_segment_requset(process.env.REACT_APP_BTN1)}>分割第一個Sample</LoadingButton></center>
                     </Grid>
                     <Grid item xs={6}>
-                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_segment_requset('s12')}>分割第二個Sample</LoadingButton></center>
+                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_segment_requset(process.env.REACT_APP_BTN2)}>分割第二個Sample</LoadingButton></center>
                     </Grid>
                     <Grid item xs sx={{ marginTop: '40px' }}>
                         <center><LinearProgress sx={{ width: '50%' }} value={progress} variant="determinate" /></center>

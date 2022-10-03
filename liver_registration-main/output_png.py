@@ -40,7 +40,7 @@ def save_as_plot(output_path, dicom=None, mask=None, predictions=None):
 
             plt.savefig(output_path + "/" + str(n) + ".png")  #
             plt.close()
-        return len(predictions)
+        return len(predictions)-1
     predictions = np.squeeze(predictions)  # 刪除長度為1的軸
     predictions_mask = np.where(predictions > 0.5, 1, 0)
     FOV = get_FOV(predictions)

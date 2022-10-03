@@ -19,6 +19,17 @@ busy = False
 seg_percent = 0
 
 
+# with open('logger/error.log', 'w'):
+#     pass
+error_log = logging.getLogger('error_log')
+logger_format = logging.Formatter('[%(asctime)s] :%(message)s')
+fh = logging.FileHandler('logger/error.log')
+format_fh = logging.StreamHandler()
+format_fh.setFormatter(logger_format)
+error_log.addHandler(fh)
+error_log.addHandler(format_fh)
+
+
 @app.route('/busy', methods=['GET'])
 def check_server_status():
     print(f'busy ip:{request.remote_addr}')
@@ -49,6 +60,8 @@ def liver_detect():
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
+        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -69,6 +82,7 @@ def liver_detect_png():
         busy = True
         pos = request.args['pos']
         image_path = f'./detect_png/{pos}.png'
+        print(f'liver_detect_png asking:{image_path}')
         if not os.path.exists(image_path):
             raise Exception('file not found')
         file = open(image_path, 'rb')
@@ -79,6 +93,7 @@ def liver_detect_png():
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
         print(repr(e))
         res = {
             'success': False,
@@ -116,6 +131,8 @@ def liver_segmentation():
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
+        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -145,6 +162,7 @@ def liver_seg_png():
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
         print(repr(e))
         res = {
             'success': False,
@@ -182,6 +200,7 @@ def liver_segmentation_pic():
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
         print(repr(e))
         res = {
             'success': False,
@@ -200,13 +219,18 @@ def liver_position():
         if busy:
             raise Exception('server is busy')
         busy = True
-        mask_to_pointcloud()
+        data_name1 = request.json['data_name1']
+        data_name2 = request.json['data_name2']
+        print(f'file:{data_name1}, {data_name2}')
+        mask_to_pointcloud(data_name1, data_name2)
         liver_registation()
         res = {
             'success': True
         }
         return json.dumps(res)
     except Exception as e:
+        error_log.error(repr(e))
+        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)

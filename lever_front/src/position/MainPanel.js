@@ -67,7 +67,7 @@ function MainPanel() {
     };
     let perspectiveCamera, controls, scene, renderer, stats, color;
 
-    function show_3d() {
+    function show_3d(name1, name2) {
         setload_btn(true);
         showmsg('伺服器已經開始處理，請稍待大約一分鐘');
         fetch(`http://${ip}:8000/position`, {
@@ -75,6 +75,10 @@ function MainPanel() {
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
             },
+            body: JSON.stringify({
+                data_name1: name1,
+                data_name2: name2
+            }),
         })
             .then((res) => res.json())
             .then((data) => {
@@ -196,6 +200,8 @@ function MainPanel() {
                 else {
                     setTimeout(check_server_status, 1000);
                 }
+            }).catch((error)=>{
+                setTimeout(check_server_status, 1000);
             })
     }
 
@@ -217,6 +223,10 @@ function MainPanel() {
                     showerror('伺服器正在處理請求中，請稍等');
                     check_server_status();
                 }
+            }).catch((error)=>{
+                showerror('無法連線到伺服器，重試中');
+                setload_btn(true);
+                check_server_status();
             })
     }, []);
 
@@ -235,7 +245,7 @@ function MainPanel() {
                     <center><img src='image/s12.gif' alt='sample_two' /></center>
                 </Grid>
                 <Grid item xs={12}>
-                    <center><LoadingButton loading={load_btn} variant="contained" onClick={show_3d} >計算肝臟位移量</LoadingButton></center>
+                    <center><LoadingButton loading={load_btn} variant="contained" onClick={()=>show_3d(process.env.REACT_APP_BTN1, process.env.REACT_APP_BTN2)} >計算肝臟位移量</LoadingButton></center>
                 </Grid>
             </Grid>
 
@@ -255,8 +265,8 @@ function MainPanel() {
                     <Box sx={style}>
                         <center><div id='gui_area'></div>
                         <Typography id="transition-modal-title" variant="h6" component="h2" sx={{height:'100px', paddingTop:'20px'}}>
-                            肝臟分割結果
-                            <div>LEFT: rotate, MIDDLE: zoom, RIGHT: pan</div>
+                            肝臟定位結果
+                            <div>LEFT: 轉動, MIDDLE: 縮放, RIGHT: 位移</div>
                         </Typography>
                            
                             <div id='3d_canvas'></div>    </center>

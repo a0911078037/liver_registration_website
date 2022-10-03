@@ -123,14 +123,20 @@ function MainPanel() {
         }).then((res) => res.json())
             .then((data) => {
                 if (data['success'] === false) {
+                    setload_btn(false);
                     showerror(data['msg']);
+                    clearInterval(logger_hander);
+                    image_len = -1;
+                    return;
                 }
                 showmsg('偵測完畢，產生圖片中，請稍等');
                 clearInterval(logger_hander);
                 image_len = data['image_len'];
             })
             .then(()=>{
-                get_image(image_len);
+                if(image_len != -1){
+                    get_image(image_len);
+                }
             })
     }
     function check_server_status() {
@@ -150,6 +156,9 @@ function MainPanel() {
                     setTimeout(check_server_status, 1000);
                 }
             })
+            .catch((error)=>{
+                setTimeout(check_server_status, 1000);
+            })
     }
 
     useEffect(() => {
@@ -167,6 +176,11 @@ function MainPanel() {
                     check_server_status();
                 }
             })
+            .catch((error)=>{
+                showerror('無法連線到伺服器，重試中');
+                setload_btn(true);
+                check_server_status();
+            })
     }, []);
     return (
         <>
@@ -182,10 +196,10 @@ function MainPanel() {
                         <center><img src='image/s12.gif' alt='sample_two' /></center>
                     </Grid>
                     <Grid item xs={6}>
-                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_detect_requset('s11')}>偵測第一個Sample</LoadingButton></center>
+                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_detect_requset(process.env.REACT_APP_BTN1)}>偵測第一個Sample</LoadingButton></center>
                     </Grid>
                     <Grid item xs={6}>
-                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_detect_requset('s12')}>偵測第二個Sample</LoadingButton></center>
+                        <center><LoadingButton loading={load_btn} variant="contained" onClick={() => send_detect_requset(process.env.REACT_APP_BTN2)}>偵測第二個Sample</LoadingButton></center>
                     </Grid>
                     <Grid item xs sx={{ marginTop: '40px' }}>
                         <center><TextareaAutosize id='console' placeholder='控制台輸出在此' maxRows={15} readOnly defaultValue={console_data} /></center>
@@ -208,7 +222,7 @@ function MainPanel() {
                 <Fade in={open}>
                     <Box sx={style}>
                         <center><Typography id="transition-modal-title" variant="h6" component="h2">
-                            肝臟分割結果
+                            肝臟偵測結果
                         </Typography>
                             <Fade
                                 in={load_circule}

@@ -49,7 +49,7 @@ function showmsg(msg) {
 }
 
 function MainPanel() {
-    const [load_btn, setload_btn] = useState(false);
+    const [load_btn, setload_btn] = useState(true);
     const [console_data, setconsole_data] = useState('');
     const [open, setOpen] = React.useState(false);
     const handleClose = () => setOpen(false);
@@ -171,14 +171,15 @@ function MainPanel() {
             .then((res) => res.json())
             .then((data) => {
                 if (data['busy'] === true) {
-                    setload_btn(true);
                     showerror('伺服器正在處理請求中，請稍等');
                     check_server_status();
+                }
+                else{
+                    setload_btn(false);
                 }
             })
             .catch((error)=>{
                 showerror('無法連線到伺服器，重試中');
-                setload_btn(true);
                 check_server_status();
             })
     }, []);

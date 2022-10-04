@@ -250,7 +250,7 @@ def position_file():
 def create_app():
     CORS(app)
     app.run(
-        host='192.168.0.105',
+        host='0.0.0.0',
         port=8000,
         debug=True,
         use_reloader=True

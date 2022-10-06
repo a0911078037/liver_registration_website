@@ -102,7 +102,6 @@ def liver_seg(data_name, mask_name):
 
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
-
     dicom_path = f'dicom_detection/{data_name}.nii.gz'
     dicom_p = nib.load(dicom_path)
 

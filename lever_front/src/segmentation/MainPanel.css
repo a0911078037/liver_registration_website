@@ -3,5 +3,10 @@
     width: 300px;
     height: 300px;
     position: absolute;
-    
 }
+
+#upload_area{
+	position: fixed;
+	bottom: 150px;
+  	right: 250px;
+} 

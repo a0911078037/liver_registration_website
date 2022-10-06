@@ -130,3 +130,10 @@
 	width: 900px;
 	height: 300px;
 }
+
+#upload_area{
+	position: fixed;
+	bottom: 150px;
+  	right: 250px;
+	display: grid;
+} 

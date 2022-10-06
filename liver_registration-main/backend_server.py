@@ -11,13 +11,11 @@ import logging
 import base64
 import globals_val
 
-
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
-log.disabled = True
+log.disabled = False
 busy = False
 seg_percent = 0
-
 
 with open('logger/error.log', 'w'):
     pass
@@ -28,6 +26,8 @@ format_fh = logging.StreamHandler()
 format_fh.setFormatter(logger_format)
 error_log.addHandler(fh)
 error_log.addHandler(format_fh)
+
+ALLOWED_EXTENSIONS = {'nii.gz'}
 
 
 @app.route('/busy', methods=['GET'])
@@ -245,6 +245,79 @@ def liver_position():
 def position_file():
     file_name = request.args['f']
     return send_file(f'3d_model/{file_name}.pcd', as_attachment=True)
+
+
+@app.route('/file/detect_dicom', methods=['POST'])
+def file_detect_dicom():
+    try:
+        print(f'file_detect_dicom from:{request.remote_addr}')
+        global busy
+        if busy:
+            raise Exception('server is busy')
+        busy = True
+        if 'file' not in request.files:
+            raise Exception('file not uploaded')
+        file = request.files['file']
+        if file.filename == '':
+            raise Exception('file not selected')
+        if file.filename.split('.', 1)[1] not in ALLOWED_EXTENSIONS:
+            raise Exception('file format needs to be .nii.gz')
+        file.save('./upload_file/detect_dicom.nii.gz')
+        res = {
+            'success': True
+        }
+        return json.dumps(res)
+    except Exception as e:
+        error_log.error(repr(e))
+        print(repr(e))
+        res = {
+            'success': False,
+            'msg': str(e)
+        }
+        return json.dumps(res)
+    finally:
+        busy = False
+        print('file_detect finish')
+
+
+@app.route('/file/detect_mask', methods=['POST'])
+def file_detect_mask():
+    try:
+        print(f'file_detect_mask from:{request.remote_addr}')
+        global busy
+        if busy:
+            raise Exception('server is busy')
+        busy = True
+        if 'file' not in request.files:
+            raise Exception('file not uploaded')
+        file = request.files['file']
+        if file.filename == '':
+            raise Exception('file not selected')
+        if file.filename.split('.', 1)[1] not in ALLOWED_EXTENSIONS:
+            raise Exception('file format needs to be .nii.gz')
+        file.save('./upload_file/detect_mask.nii.gz')
+        find_liver('detect')
+        logging.info('liver_detect finish')
+        logging.info('generating png file')
+        predictions = load_niigz(f'dicom_detection/detect.nii.gz')
+        image_len = save_as_plot('./detect_png', None, None, predictions)
+        logging.info('generating png file finish')
+        res = {
+            'success': True,
+            'image_len': image_len
+        }
+        return json.dumps(res)
+    except Exception as e:
+        error_log.error(repr(e))
+        print(repr(e))
+        res = {
+            'success': False,
+            'msg': str(e)
+        }
+        return json.dumps(res)
+    finally:
+        busy = False
+        print('file_detect finish')
 
 
 def create_app():

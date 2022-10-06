@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Container, Grid, LinearProgress, CircularProgress, Backdrop, Box, Modal, Fade } from '@mui/material';
+import { Typography, Container, Grid, LinearProgress, CircularProgress, Backdrop, Box, Modal, Fade, Dialog, DialogContent, DialogTitle, DialogActions, DialogContentText, Button }
+    from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -55,25 +56,7 @@ function MainPanel() {
     const handleClose = () => setOpen(false);
     const [image_area, setImage_area] = useState([]);
     const [load_circule, setLoad_circule] = useState(false);
-    // const [seg_img, setSeg_img] = useState('');
-
-    // get gif img
-    // function get_seg_img(name) {
-    //     fetch(`http://${ip}:8000/segmentation_pic`, {
-    //         method: 'POST',
-    //         body: JSON.stringify({
-    //             data_name: name
-    //         }),
-    //         headers: {
-    //             'Content-type': 'application/json; charset=UTF-8',
-    //         },
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-    //             setSeg_img(data['img']);
-    //             setOpen(true);
-    //         })
-    // }
+    const [dialog, setDialog] = useState(false);
 
     function get_seg_progress() {
         fetch(`http://${ip}:8000/segmentation_process`, {
@@ -88,7 +71,7 @@ function MainPanel() {
             })
     }
 
-    async function get_seg_img(img_len=1){
+    async function get_seg_img(img_len = 1) {
         let image_list = [];
         setImage_area([]);
         setLoad_circule(true);
@@ -118,6 +101,7 @@ function MainPanel() {
     }
     function send_segment_requset(name) {
         setload_btn(true);
+        setDialog(false);
         var logger_hander = setInterval(get_seg_progress, 1000);
         fetch(`http://${ip}:8000/segmentation`, {
             method: 'POST',
@@ -158,10 +142,10 @@ function MainPanel() {
                 else {
                     setTimeout(check_server_status, 1000);
                 }
-            }).catch((error)=>{
+            }).catch((error) => {
                 setTimeout(check_server_status, 1000);
             })
-            
+
     }
 
     useEffect(() => {
@@ -173,13 +157,13 @@ function MainPanel() {
         })
             .then((res) => res.json())
             .then((data) => {
-                if (data['busy'] === true) { 
+                if (data['busy'] === true) {
                     showerror('伺服器正在處理請求中，請稍等');
                     check_server_status();
-                }else{
+                } else {
                     setload_btn(false);
                 }
-            }).catch((error)=>{
+            }).catch((error) => {
                 showerror('無法連線到伺服器，重試中');
                 check_server_status();
             })
@@ -225,24 +209,49 @@ function MainPanel() {
                             <center><Typography id="transition-modal-title" variant="h6" component="h2">
                                 肝臟分割結果
                             </Typography>
-                            <Fade
-                                in={load_circule}
-                                style={{
-                                    transitionDelay: load_circule ? '800ms' : '0ms',
-                                    marginTop: '200px'
-                                }}
-                                unmountOnExit
-                            >
-                                <CircularProgress />
-                            </Fade>
-                            <Grid container spacing={2}>{image_area.map((image) => {
-                                return (<Grid item xs={12}><img src={image.src} alt={image.i} width='100%' height='100%'></img></Grid>)
-                            })}</Grid>
-                               </center>
+                                <Fade
+                                    in={load_circule}
+                                    style={{
+                                        transitionDelay: load_circule ? '800ms' : '0ms',
+                                        marginTop: '200px'
+                                    }}
+                                    unmountOnExit
+                                >
+                                    <CircularProgress />
+                                </Fade>
+                                <Grid container spacing={2}>{image_area.map((image) => {
+                                    return (<Grid item xs={12}><img src={image.src} alt={image.i} width='100%' height='100%'></img></Grid>)
+                                })}</Grid>
+                            </center>
                         </Box>
                     </Fade>
                 </Modal>
             </Container>
+            <div id='upload_area'>
+                <LoadingButton loading={load_btn} variant="contained" onClick={()=>setDialog(true)}>分割自訂樣本</LoadingButton>
+                    <Dialog
+                        open={dialog}
+                        onClose={()=>setDialog(false)}
+                        aria-labelledby="title"
+                        aria-describedby="des"
+                    >
+                        <DialogTitle id="title">
+                            {"注意"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="des">
+                                請確認已在肝臟偵測完成上傳資料，再開始進行此步驟。
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={()=>setDialog(false)}>取消</Button>
+                            <Button onClick={()=>send_segment_requset('detect')} autoFocus>
+                                確認
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                
+            </div>
         </>
     );
 }

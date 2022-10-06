@@ -1,5 +1,10 @@
 #gui_area{
     left: 750px;
     position: absolute;
-    
 }
+
+#upload_area{
+	position: fixed;
+	bottom: 150px;
+  	right: 250px;
+} 

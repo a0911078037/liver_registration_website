@@ -30,12 +30,23 @@ def find_liver(data_loc):
     with open(logger_path, 'w'):
         pass
     logging.basicConfig(filename='logger/liver_detect.log', level=logging.INFO, format=logger_format)
-    dicom_data_loc = f'dicom/{data_loc}.nii.gz'
+    dicom_data_loc = ''
+    if data_loc == 'detect':
+        dicom_data_loc = f'upload_file/detect_dicom.nii.gz'
+    else:
+        dicom_data_loc = f'dicom/{data_loc}.nii.gz'
     logging.info(dicom_data_loc)
     dicom_n = nib.load(dicom_data_loc)
     dicom = dicom_n.get_data()
 
-    mask_data_loc = f'mask/{data_loc}.nii.gz'
+    mask_data_loc = ''
+    if data_loc == 'detect':
+        mask_data_loc = f'upload_file/detect_mask.nii.gz'
+    else:
+        mask_data_loc = f'mask/{data_loc}.nii.gz'
+    print(f'dicom path:{dicom_data_loc}')
+    print(f'mask path:{mask_data_loc}')
+
     mask_n = nib.load(mask_data_loc)
     mask = mask_n.get_data()
 

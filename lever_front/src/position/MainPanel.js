@@ -209,6 +209,25 @@ function MainPanel() {
         renderer.render(scene, perspectiveCamera);
     }
 
+    function upload_data(event) {
+        const formdata = new FormData();
+        formdata.append('file', event.target.files[0]);
+        fetch(`http://${ip}:8000/file/postion`,{
+            method: 'POST',
+            body: formdata,
+        }).then(res=>res.json())
+        .then((data)=>{
+            if(data['success']===false){
+                showerror(data['msg']);
+            }
+            event.target.value = ''
+        })
+        .catch(err=>{
+            console.log(err);
+            showerror(err);
+        })
+    }
+
     useEffect(() => {
         fetch(`http://${ip}:8000/busy`, {
             method: 'GET',
@@ -250,7 +269,14 @@ function MainPanel() {
                     <center><LoadingButton loading={load_btn} variant="contained" onClick={()=>show_3d(process.env.REACT_APP_BTN1, process.env.REACT_APP_BTN2)} >計算肝臟位移量</LoadingButton></center>
                 </Grid>
             </Grid>
-
+            <div id='upload_area'>
+                    <LoadingButton loading={load_btn} variant="contained" component="label">上傳自訂資料
+                    <input
+                        type={"file"}
+                        hidden
+                        onChange={(e)=>{upload_data(e)}}
+                    /></LoadingButton>
+                </div>
             <Modal
                 aria-labelledby="transition-modal-title"
                 aria-describedby="transition-modal-description"

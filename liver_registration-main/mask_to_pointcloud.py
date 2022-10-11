@@ -7,7 +7,8 @@ import cv2
 def mask_to_pointcloud(data_name1, data_name2):
     before_path = ''
     after_path = ''
-    if data_name1 is 'position' and data_name2 is 'position':
+    print(data_name1)
+    if data_name1 == 'position' and data_name2 == 'position':
         before_path = f'upload_file/postion_file_1.nii.gz'
         after_path = f'upload_file/postion_file_2.nii.gz'
     else:

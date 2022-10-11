@@ -227,19 +227,22 @@ function MainPanel() {
             if(data['success']===false){
                 showerror(data['msg']);
             }
+            else{
+                if(count === 1){
+                    set_first_download(true);
+                    set_sencond_download(false);
+                }
+                else{
+                    show_3d('position', 'position');
+                }
+            }
             event.target.value = ''
         })
         .catch(err=>{
             console.log(err);
             showerror(err);
         })
-        if(count === 1){
-            set_first_download(true);
-            set_sencond_download(false);
-        }
-        else{
-            show_3d('position', 'position');
-        }
+        
     }
 
     useEffect(() => {

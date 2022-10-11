@@ -326,13 +326,14 @@ def file_position():
         if busy:
             raise Exception('server is busy')
         file = request.files['file']
-        if request.form['count'] == 1:
+        print(request.form['count'])
+        if request.form['count'] == '1':
             file.save('./upload_file/postion_file_1.nii.gz')
             res = {
                 'success': True
             }
             return json.dumps(res)
-        elif request.form['count'] == 2:
+        elif request.form['count'] == '2':
             file.save('./upload_file/postion_file_2.nii.gz')
             res = {
                 'success': True

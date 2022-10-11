@@ -59,6 +59,8 @@ function showmsg(msg) {
 function MainPanel() {
     const [load_btn, setload_btn] = useState(true);
     const [open, setOpen] = React.useState(false);
+    const [sencond_download, set_sencond_download] = useState(true);
+    const [first_download, set_first_download] = useState(false);
     const handleClose = () => setOpen(false);
     const params = {
         result: false,
@@ -94,6 +96,10 @@ function MainPanel() {
                 setOpen(true);
                 init();
                 animate();
+            })
+            .then(()=>{
+                set_first_download(false);
+                set_sencond_download(true);
             })
 
     }
@@ -209,10 +215,11 @@ function MainPanel() {
         renderer.render(scene, perspectiveCamera);
     }
 
-    function upload_data(event) {
+    function upload_data(event, count) {
         const formdata = new FormData();
         formdata.append('file', event.target.files[0]);
-        fetch(`http://${ip}:8000/file/postion`,{
+        formdata.append('count', count);
+        fetch(`http://${ip}:8000/file/position`,{
             method: 'POST',
             body: formdata,
         }).then(res=>res.json())
@@ -226,6 +233,13 @@ function MainPanel() {
             console.log(err);
             showerror(err);
         })
+        if(count === 1){
+            set_first_download(true);
+            set_sencond_download(false);
+        }
+        else{
+            show_3d('position', 'position');
+        }
     }
 
     useEffect(() => {
@@ -270,11 +284,17 @@ function MainPanel() {
                 </Grid>
             </Grid>
             <div id='upload_area'>
-                    <LoadingButton loading={load_btn} variant="contained" component="label">上傳自訂資料
+                    <LoadingButton loading={load_btn} variant="contained" component="label" sx={{marginBottom:'50px'}} disabled={first_download}>上傳第一筆自訂資料
                     <input
                         type={"file"}
                         hidden
-                        onChange={(e)=>{upload_data(e)}}
+                        onChange={(e)=>{upload_data(e, 1)}}
+                    /></LoadingButton>
+                    <LoadingButton loading={load_btn} variant="contained" component="label" disabled={sencond_download}>上傳第二筆自訂資料
+                    <input
+                        type={"file"}
+                        hidden
+                        onChange={(e)=>{upload_data(e, 2)}}
                     /></LoadingButton>
                 </div>
             <Modal

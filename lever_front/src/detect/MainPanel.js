@@ -59,6 +59,7 @@ function MainPanel() {
     const [dicom_text, setdicom_text] = useState('上傳自訂樣本(dicom)');
     const [mask_btn, set_mask_btn] = useState(true);
     const [mask_btn_load, set_mask_btn_load] = useState(false);
+    const [download_btn, setdownload_btn] = useState(true);
 
     async function get_image(image_len = 1) {
         let image_list = [];
@@ -91,6 +92,35 @@ function MainPanel() {
         setdicom_text('上傳自訂樣本(dicom)');
         set_mask_btn(true);
         set_mask_btn_load(false);
+        setdownload_btn(false);
+    }
+
+    function download_file(){
+        setdownload_btn(true);
+        fetch(`http://${ip}:8000/download/detect`, {
+            method: 'POST',
+           
+        }).then((res)=>res.blob())
+        .then((blob)=>{
+            const url = window.URL.createObjectURL(
+                new Blob([blob]),
+              );
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute(
+                'download',
+                `detect.nii.gz`,
+              );
+          
+              // Append to html link element page
+              document.body.appendChild(link);
+          
+              // Start download
+              link.click();
+          
+              // Clean up and remove the link
+              link.parentNode.removeChild(link);
+        })
     }
 
     function scoll_console_buttom() {
@@ -279,12 +309,13 @@ function MainPanel() {
                         hidden
                         onChange={(e)=>{upload_data_dicom(e)}}
                     /></LoadingButton>
-                    <LoadingButton disabled={mask_btn} variant="contained" component="label" loading={mask_btn_load}>{'請先上傳dicom樣本'}
+                    <LoadingButton disabled={mask_btn} variant="contained" component="label" loading={mask_btn_load} sx={{marginBottom:'50px'}}>{'請先上傳dicom樣本'}
                     <input
                         type={"file"}
                         hidden
                         onChange={(e)=>{upload_data_mask(e)}}
                     /></LoadingButton>
+                    <LoadingButton disabled={download_btn} variant="contained" component="label" loading={mask_btn_load} onClick={download_file}>{'下載自訂樣本'}</LoadingButton>
                 </div>
             </Container>
             <Modal

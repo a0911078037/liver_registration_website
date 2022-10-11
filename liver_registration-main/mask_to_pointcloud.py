@@ -5,8 +5,14 @@ import cv2
 
 
 def mask_to_pointcloud(data_name1, data_name2):
-    before_path = f'predict_mask/mask_{data_name1}.nii.gz'
-    after_path = f'predict_mask/mask_{data_name2}.nii.gz'
+    before_path = ''
+    after_path = ''
+    if data_name1 is 'position' and data_name2 is 'position':
+        before_path = f'upload_file/postion_file_1.nii.gz'
+        after_path = f'upload_file/postion_file_2.nii.gz'
+    else:
+        before_path = f'predict_mask/mask_{data_name1}.nii.gz'
+        after_path = f'predict_mask/mask_{data_name2}.nii.gz'
     test = nib.load(before_path).get_data()
     test2 = nib.load(after_path).get_data()
     # test2=test

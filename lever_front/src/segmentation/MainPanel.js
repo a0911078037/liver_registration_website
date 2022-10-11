@@ -57,6 +57,7 @@ function MainPanel() {
     const [image_area, setImage_area] = useState([]);
     const [load_circule, setLoad_circule] = useState(false);
     const [dialog, setDialog] = useState(false);
+    const [download_btn, setdownload_btn] = useState(true);
 
     function get_seg_progress() {
         fetch(`http://${ip}:8000/segmentation_process`, {
@@ -98,6 +99,7 @@ function MainPanel() {
         setLoad_circule(false);
         setload_btn(false);
         setImage_area(image_list);
+        setdownload_btn(false);
     }
     function send_segment_requset(name) {
         setload_btn(true);
@@ -124,6 +126,34 @@ function MainPanel() {
                 showmsg('產生圖片中，請稍等');
                 get_seg_img(data['img_len']);
             })
+    }
+    
+    function download_file(){
+        setdownload_btn(true);
+        fetch(`http://${ip}:8000/download/segmentation`, {
+            method: 'POST',
+           
+        }).then((res)=>res.blob())
+        .then((blob)=>{
+            const url = window.URL.createObjectURL(
+                new Blob([blob]),
+              );
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute(
+                'download',
+                `mask_detect.nii.gz`,
+              );
+          
+              // Append to html link element page
+              document.body.appendChild(link);
+          
+              // Start download
+              link.click();
+          
+              // Clean up and remove the link
+              link.parentNode.removeChild(link);
+        })
     }
 
     function check_server_status() {
@@ -228,7 +258,8 @@ function MainPanel() {
                 </Modal>
             </Container>
             <div id='upload_area'>
-                <LoadingButton loading={load_btn} variant="contained" onClick={()=>setDialog(true)}>分割自訂樣本</LoadingButton>
+                <LoadingButton loading={load_btn} variant="contained" onClick={()=>setDialog(true)} sx={{marginBottom:'50px'}}>分割自訂樣本</LoadingButton>
+                <Button variant="contained" disabled={download_btn} onClick={download_file}>下載自訂樣本</Button>
                     <Dialog
                         open={dialog}
                         onClose={()=>setDialog(false)}

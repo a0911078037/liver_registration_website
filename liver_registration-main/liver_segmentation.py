@@ -124,7 +124,7 @@ def liver_seg(data_name, mask_name):
 
     Estimated_mask = np.int32(Estimated_mask)
 
-    mask_path = f'./mask_detection/{mask_name}.nii.gz'  # 這個你改成s11mask的位置
+    mask_path = f'./mask_detection/{mask_name}.nii.gz'
     mask = nib.load(mask_path).get_data()
     print('begin saving image')
     img_len = save_as_plot(dicom_p.get_data(), mask, Estimated_mask, './seg_png')

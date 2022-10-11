@@ -60,8 +60,9 @@ def liver_detect():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -69,7 +70,6 @@ def liver_detect():
         return json.dumps(res)
     finally:
         print('liver_detect finish')
-        busy = False
 
 
 @app.route('/detect_png', methods=['GET'])
@@ -93,8 +93,9 @@ def liver_detect_png():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -102,7 +103,6 @@ def liver_detect_png():
         return json.dumps(res)
     finally:
         print(f'liver_detect_png finish')
-        busy = False
 
 
 @app.route('/detect_log', methods=['POST'])
@@ -131,8 +131,9 @@ def liver_segmentation():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -140,7 +141,6 @@ def liver_segmentation():
         return json.dumps(res)
     finally:
         print(f'liver_segmentation finish')
-        busy = False
 
 
 @app.route('/seg_png', methods=['GET'])
@@ -162,15 +162,14 @@ def liver_seg_png():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
         }
         return json.dumps(res)
-    finally:
-        busy = False
 
 
 @app.route('/segmentation_process', methods=['POST'])
@@ -200,15 +199,14 @@ def liver_segmentation_pic():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
         }
         return json.dumps(res)
-    finally:
-        busy = False
 
 
 @app.route('/position', methods=['POST'])
@@ -229,8 +227,9 @@ def liver_position():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
@@ -238,7 +237,6 @@ def liver_position():
         return json.dumps(res)
     finally:
         print(f'liver_position finish')
-        busy = False
 
 
 @app.route('/position_file', methods=['GET'])
@@ -268,15 +266,15 @@ def file_detect_dicom():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
         }
         return json.dumps(res)
     finally:
-        busy = False
         print('file_detect finish')
 
 
@@ -308,16 +306,86 @@ def file_detect_mask():
         }
         return json.dumps(res)
     except Exception as e:
+        if str(e) != 'server is busy':
+            busy = False
         error_log.error(repr(e))
-        print(repr(e))
         res = {
             'success': False,
             'msg': str(e)
         }
         return json.dumps(res)
     finally:
-        busy = False
         print('file_detect finish')
+
+
+@app.route('/file/position', methods=['POST'])
+def file_position():
+    try:
+        print(f'postion file addr:{request.remote_addr}')
+        global busy
+        if busy:
+            raise Exception('server is busy')
+        file = request.files['file']
+        if request.form['count'] == 1:
+            file.save('./upload_file/postion_file_1.nii.gz')
+            res = {
+                'success': True
+            }
+            return json.dumps(res)
+        elif request.form['count'] == 2:
+            file.save('./upload_file/postion_file_2.nii.gz')
+            res = {
+                'success': True
+            }
+            return json.dumps(res)
+        else:
+            res = {
+                'success': False,
+                'msg': 'invalid arguments'
+            }
+            return json.dumps(res)
+
+    except Exception as e:
+        error_log.error(repr(e))
+        res = {
+            'msg': str(e),
+            'success': False
+        }
+        return json.dumps(res)
+
+
+@app.route('/download/detect', methods=['POST'])
+def return_detect_file():
+    try:
+        print(f'detect file sending addr:{request.remote_addr}')
+        global busy
+        if busy:
+            raise Exception('server is busy')
+        return send_file('dicom_detection/detect.nii.gz', as_attachment=True)
+    except Exception as e:
+        error_log.error(repr(e))
+        res = {
+            'msg': str(e),
+            'success': False
+        }
+        return json.dumps(res)
+
+
+@app.route('/download/segmentation', methods=['POST'])
+def return_segmentation_file():
+    try:
+        print(f'segmentation file sending addr:{request.remote_addr}')
+        global busy
+        if busy:
+            raise Exception('server is busy')
+        return send_file('predict_mask/mask_detect.nii.gz', as_attachment=True)
+    except Exception as e:
+        error_log.error(repr(e))
+        res = {
+            'msg': str(e),
+            'success': False
+        }
+        return json.dumps(res)
 
 
 def create_app():

@@ -133,7 +133,7 @@
 
 #upload_area{
 	position: fixed;
-	bottom: 150px;
+	bottom: 100px;
   	right: 250px;
 	display: grid;
 } 

@@ -13,7 +13,7 @@ import globals_val
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
-log.disabled = False
+log.disabled = True
 busy = False
 seg_percent = 0
 

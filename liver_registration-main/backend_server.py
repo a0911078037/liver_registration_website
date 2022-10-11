@@ -58,6 +58,7 @@ def liver_detect():
             'success': True,
             'image_len': image_len
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -91,6 +92,7 @@ def liver_detect_png():
             'success': True,
             'image': encoded_img
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -129,6 +131,7 @@ def liver_segmentation():
             'img_len': img_len,
             'success': True
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -160,6 +163,7 @@ def liver_seg_png():
             'success': True,
             'image': encoded_img
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -197,6 +201,7 @@ def liver_segmentation_pic():
             'success': True,
             'image': encoded_img
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -225,6 +230,7 @@ def liver_position():
         res = {
             'success': True
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -264,6 +270,7 @@ def file_detect_dicom():
         res = {
             'success': True
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':
@@ -304,6 +311,7 @@ def file_detect_mask():
             'success': True,
             'image_len': image_len
         }
+        busy = False
         return json.dumps(res)
     except Exception as e:
         if str(e) != 'server is busy':

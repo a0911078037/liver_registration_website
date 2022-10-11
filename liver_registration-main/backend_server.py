@@ -325,9 +325,10 @@ def create_app():
     app.run(
         host='0.0.0.0',
         port=8000,
-        debug=True,
-        use_reloader=True
+        debug=False,
+        use_reloader=False
     )
+    return app
 
 
 if __name__ == '__main__':

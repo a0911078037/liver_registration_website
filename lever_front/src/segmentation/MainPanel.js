@@ -58,6 +58,7 @@ function MainPanel() {
     const [load_circule, setLoad_circule] = useState(false);
     const [dialog, setDialog] = useState(false);
     const [download_btn, setdownload_btn] = useState(true);
+    const custom = false;
 
     function get_seg_progress() {
         fetch(`http://${ip}:8000/segmentation_process`, {
@@ -99,9 +100,15 @@ function MainPanel() {
         setLoad_circule(false);
         setload_btn(false);
         setImage_area(image_list);
-        setdownload_btn(false);
+        if(custom){
+            custom = false;
+            setdownload_btn(false);
+        }
     }
     function send_segment_requset(name) {
+        if(name === 'detect'){
+            custom = true;
+        }
         setload_btn(true);
         setDialog(false);
         var logger_hander = setInterval(get_seg_progress, 1000);

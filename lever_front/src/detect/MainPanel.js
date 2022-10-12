@@ -60,6 +60,7 @@ function MainPanel() {
     const [mask_btn, set_mask_btn] = useState(true);
     const [mask_btn_load, set_mask_btn_load] = useState(false);
     const [download_btn, setdownload_btn] = useState(true);
+    let custom = false;
 
     async function get_image(image_len = 1) {
         let image_list = [];
@@ -92,7 +93,10 @@ function MainPanel() {
         setdicom_text('上傳自訂樣本(dicom)');
         set_mask_btn(true);
         set_mask_btn_load(false);
-        setdownload_btn(false);
+        if(custom){
+            setdownload_btn(false);
+            custom = false;
+        }
     }
 
     function download_file(){
@@ -203,7 +207,7 @@ function MainPanel() {
             })
     }
 
-    function upload_data_dicom(event) {
+    function upload_data_dicom(event) { 
         setload_btn(true);
         const formdata = new FormData();
         formdata.append('file', event.target.files[0]);
@@ -233,6 +237,7 @@ function MainPanel() {
     }
 
     function upload_data_mask(event) {
+        custom = true;
         const formdata = new FormData();
         formdata.append('file', event.target.files[0]);
         fetch(`http://${ip}:8000/file/detect_mask`,{

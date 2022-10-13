@@ -55,11 +55,12 @@ function MainPanel() {
     const handleClose = () => setOpen(false);
     const [image_area, setImage_area] = useState([]);
     const [load_circule, setLoad_circule] = useState(false);
-    const [dicom_btn, setdicom_btn] = useState(false);
+    const [dicom_btn, setdicom_btn] = useState(true);
     const [dicom_text, setdicom_text] = useState('上傳自訂樣本(dicom)');
     const [mask_btn, set_mask_btn] = useState(true);
     const [mask_btn_load, set_mask_btn_load] = useState(false);
     const [download_btn, setdownload_btn] = useState(true);
+    const [mask_btn_text, set_mask_btn_text] = useState('請先上傳dicom樣本');
     let custom = false;
 
     async function get_image(image_len = 1) {
@@ -170,6 +171,7 @@ function MainPanel() {
                     set_mask_btn(true);
                     set_mask_btn_load(false);
                     setdicom_text('上傳自訂樣本(dicom)');
+                    set_mask_btn_text('請先上傳dicom樣本');
                     showerror(data['msg']);
                     clearInterval(logger_hander);
                     image_len = -1;
@@ -196,6 +198,7 @@ function MainPanel() {
             .then((data) => {
                 if (data['busy'] === false) {
                     setload_btn(false);
+                    setdicom_btn(false);
                     showmsg('伺服器處理完成');
                 }
                 else {
@@ -225,6 +228,7 @@ function MainPanel() {
                 setdicom_btn(true);
                 set_mask_btn(false);
                 setdicom_text('上傳完成');
+                set_mask_btn_text('請上傳mask樣本');
             }
             
         })
@@ -237,8 +241,10 @@ function MainPanel() {
     }
 
     function upload_data_mask(event) {
+        let flag = false;
         custom = true;
         const formdata = new FormData();
+        set_mask_btn_load(true);
         formdata.append('file', event.target.files[0]);
         fetch(`http://${ip}:8000/file/detect_mask`,{
             method: 'POST',
@@ -250,10 +256,16 @@ function MainPanel() {
                 showerror(data['msg']);
             }
             else{
-                set_mask_btn_load(true);
-                send_detect_requset('detect');
+                showmsg('開始偵測肝臟');
+                flag = true;
+                console.log('123');
             }
             
+        })
+        .then(()=>{
+            if(flag === true){
+                send_detect_requset('detect');
+            }
         })
         .catch(err=>{
             console.log(err);
@@ -277,6 +289,7 @@ function MainPanel() {
                 }
                 else {
                     setload_btn(false);
+                    setdicom_btn(false);
                 }
             })
             .catch((error) => {
@@ -314,7 +327,7 @@ function MainPanel() {
                         hidden
                         onChange={(e)=>{upload_data_dicom(e)}}
                     /></LoadingButton>
-                    <LoadingButton disabled={mask_btn} variant="contained" component="label" loading={mask_btn_load} sx={{marginBottom:'50px'}}>{'請先上傳dicom樣本'}
+                    <LoadingButton disabled={mask_btn} variant="contained" component="label" loading={mask_btn_load} sx={{marginBottom:'50px'}}>{mask_btn_text}
                     <input
                         type={"file"}
                         hidden

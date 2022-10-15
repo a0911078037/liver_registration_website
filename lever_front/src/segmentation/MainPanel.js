@@ -58,7 +58,7 @@ function MainPanel() {
     const [load_circule, setLoad_circule] = useState(false);
     const [dialog, setDialog] = useState(false);
     const [download_btn, setdownload_btn] = useState(true);
-    const custom = false;
+    let custom = false;
 
     function get_seg_progress() {
         fetch(`http://${ip}:8000/segmentation_process`, {

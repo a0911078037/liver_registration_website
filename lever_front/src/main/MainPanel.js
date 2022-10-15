@@ -8,7 +8,7 @@ function MainPanel() {
         <>
             <Container maxWidth="xl">
                 <Typography variant="h4" sx={{ mb: 5 }} id='cssload-loader'>
-                    人工智慧偵測肝臟
+                    肝臟定位Ai輔助診斷系統
                 </Typography>
                 <Grid container rowSpacing={5} sx={{marginLeft:'150px', paddingTop:'30px'}}>
                     <Grid item xs={12}>
